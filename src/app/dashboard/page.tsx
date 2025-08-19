@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react'
 import { redirect } from 'next/navigation'
 import { Plus, FileText, BarChart, Clock, Star } from 'lucide-react'
 import Link from 'next/link'
+import GitHubStudentPackDashboard from '@/components/GitHubStudentPackDashboard'
 
 export default function Dashboard() {
   const { data: session, status } = useSession()
@@ -142,6 +143,9 @@ export default function Dashboard() {
 
           {/* Sidebar */}
           <div className="space-y-6">
+            {/* GitHub Student Pack Dashboard */}
+            <GitHubStudentPackDashboard />
+
             {/* Quick Actions */}
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
