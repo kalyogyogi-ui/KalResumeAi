@@ -10,9 +10,7 @@ const nextConfig = {
   },
   // Handle external packages properly for Vercel deployment
   serverExternalPackages: ['bcryptjs', 'mongoose', 'mongodb'],
-  experimental: {
-    serverComponentsExternalPackages: ['bcryptjs', 'mongoose', 'mongodb']
-  },
+  // Removed deprecated experimental.serverComponentsExternalPackages
   // Image optimization settings for production
   images: {
     domains: [
