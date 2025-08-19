@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useSession, signIn, signOut } from 'next-auth/react'
 import { Menu, X, User, Settings, LogOut, Plus } from 'lucide-react'
 
@@ -45,9 +46,11 @@ export default function Header() {
               <div className="relative group">
                 <button className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors">
                   {session.user?.image ? (
-                    <img
+                    <Image
                       src={session.user.image}
                       alt={session.user.name || 'User'}
+                      width={32}
+                      height={32}
                       className="w-8 h-8 rounded-full"
                     />
                   ) : (

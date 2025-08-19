@@ -34,7 +34,7 @@ export default function Hero() {
       setCurrentTestimonial((prev) => (prev + 1) % testimonials.length)
     }, 4000)
     return () => clearInterval(timer)
-  }, [])
+  }, [testimonials.length])
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-white to-blue-50">
