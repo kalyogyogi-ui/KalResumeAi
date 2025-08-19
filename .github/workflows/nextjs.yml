@@ -1,16 +1,28 @@
-# Sample workflow for building and deploying a Next.js site to GitHub Pages
+# DISABLED - Use Vercel deployment instead of GitHub Pages
+# This workflow is disabled because the app requires:
+# - Environment variables for AI APIs
+# - Database connections (MongoDB Atlas) 
+# - Server-side functions
+# - Authentication with NextAuth.js
 #
-# To get started with Next.js see: https://nextjs.org/docs/getting-started
+# For deployment, use Vercel which supports these features:
+# 1. Go to https://vercel.com/dashboard
+# 2. Import GitHub repository: kalyogyogi-ui/KalResumeAi  
+# 3. Configure environment variables
+# 4. Deploy automatically
 #
-name: Deploy Next.js site to Pages
+# GitHub Pages only supports static sites, not full-stack Next.js apps
+
+name: Deploy Next.js site to Pages (DISABLED)
 
 on:
-  # Runs on pushes targeting the default branch
-  push:
-    branches: ["main"]
-
-  # Allows you to run this workflow manually from the Actions tab
+  # Disabled - uncomment to re-enable
+  # push:
+  #   branches: ["main"]
   workflow_dispatch:
+
+# GitHub Pages deployment disabled for full-stack Next.js app
+# Use Vercel instead for proper deployment with server functions
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
