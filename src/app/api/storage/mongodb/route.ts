@@ -19,28 +19,31 @@ export async function POST(request: NextRequest) {
     });
 
     const buffer = Buffer.from(data, 'base64');
-    const uploadStream = bucket.openUploadStream(filename, {
-      metadata: { 
-        contentType,
-        uploadedAt: new Date(),
-        service: 'github-student-pack'
-      }
-    });
+    
+    // Use async/await instead of Promise wrapper
+    const uploadResult = await new Promise<{ url: string; fileId: any }>((resolve, reject) => {
+      const uploadStream = bucket.openUploadStream(filename, {
+        metadata: { 
+          contentType,
+          uploadedAt: new Date(),
+          service: 'github-student-pack'
+        }
+      });
 
-    return new Promise((resolve) => {
       uploadStream.end(buffer);
       
       uploadStream.on('finish', () => {
         const url = `/api/storage/mongodb?file=${encodeURIComponent(filename)}&id=${uploadStream.id}`;
-        client.close();
-        resolve(NextResponse.json({ url, fileId: uploadStream.id }));
+        resolve({ url, fileId: uploadStream.id });
       });
 
       uploadStream.on('error', (error) => {
-        client.close();
-        resolve(NextResponse.json({ error: error.message }, { status: 500 }));
+        reject(error);
       });
     });
+
+    await client.close();
+    return NextResponse.json(uploadResult);
 
   } catch (error) {
     console.error('MongoDB GridFS upload error:', error);
@@ -76,42 +79,49 @@ export async function GET(request: NextRequest) {
     } else if (fileId) {
       query._id = fileId;
     } else {
-      client.close();
+      await client.close();
       return NextResponse.json({ error: 'File identifier required' }, { status: 400 });
     }
     
     const files = await bucket.find(query).toArray();
 
     if (files.length === 0) {
-      client.close();
+      await client.close();
       return NextResponse.json({ error: 'File not found' }, { status: 404 });
     }
 
     const file = files[0];
     const downloadStream = bucket.openDownloadStream(file._id);
     
-    const chunks: Uint8Array[] = [];
-    
-    return new Promise((resolve) => {
+    // Use async/await instead of Promise wrapper
+    const downloadResult = await new Promise<{ buffer: Buffer; contentType: string; filename: string }>((resolve, reject) => {
+      const chunks: Uint8Array[] = [];
+      
       downloadStream.on('data', (chunk) => {
         chunks.push(chunk);
       });
 
       downloadStream.on('end', () => {
         const buffer = Buffer.concat(chunks);
-        client.close();
-        
-        const response = new NextResponse(buffer);
-        response.headers.set('Content-Type', file.metadata?.contentType || 'application/octet-stream');
-        response.headers.set('Content-Disposition', `attachment; filename="${file.filename}"`);
-        resolve(response);
+        resolve({
+          buffer,
+          contentType: file.metadata?.contentType || 'application/octet-stream',
+          filename: file.filename
+        });
       });
 
       downloadStream.on('error', (error) => {
-        client.close();
-        resolve(NextResponse.json({ error: error.message }, { status: 500 }));
+        reject(error);
       });
     });
+
+    await client.close();
+    
+    // Create proper response with buffer as Uint8Array
+    const response = new NextResponse(new Uint8Array(downloadResult.buffer));
+    response.headers.set('Content-Type', downloadResult.contentType);
+    response.headers.set('Content-Disposition', `attachment; filename="${downloadResult.filename}"`);
+    return response;
 
   } catch (error) {
     console.error('MongoDB GridFS download error:', error);
